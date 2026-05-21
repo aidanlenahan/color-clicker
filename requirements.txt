@@ -1,7 +1,7 @@
-mss
-numpy
-opencv-python
-pyautogui
-keyboard
-Pillow
-pystray
+mss==10.2.0
+numpy==2.4.6
+opencv-python==4.13.0.92
+PyAutoGUI==0.9.54
+keyboard==0.13.5
+Pillow==12.1.0
+pystray==0.19.5

@@ -2,6 +2,8 @@
 
 Watches a screen region for a specific color and auto-clicks its center whenever it appears. The main purpose of this is to overcome a niche problem--as of May 2026, Anthropic does not have a full 'auto' feature that allows Claude to code without prompting the user with permission questions. Github Copilot has a 'bypass approvals' feature in Visual Studio Code that allows Copilot to run without prompting the user, meaning it can be run in the background with no interruptions. However, the Claude Code extension in VScode does not have a feature like this. To overcome this, this program scans for a specific color in a specified reigon, and clicks when seen. The downside is that it steals the user's mouse, and makes the computer pretty much useless as it spawns the mouse back to the area every second. This is most useful when completely stepping away from the computer. This is perfect for vibecoders that need Claude to run when stepping away from their computer.
 
+![Color Clicker UI](preview.png)
+
 ## Download
 
 Grab the latest `ColorClicker.exe` from the [Releases](https://github.com/aidanlenahan/color-clicker/releases) page — no Python required. Windows will prompt for administrator rights on launch (required for global hotkeys).
