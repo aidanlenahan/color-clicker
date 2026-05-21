@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# PyInstaller
+*.spec
+!color_clicker.spec
+dist/
+build/
+
+# App data
+presets.json
+preferences.json
+log.txt
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+.claude/
+CLAUDE.md
+
+# OS
+Thumbs.db
+Desktop.ini
+
+tmp/
+
+# Internal dev artifacts
+init-chat.md
+init-prompt.md
