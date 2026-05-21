@@ -58,6 +58,7 @@ class App(tk.Tk):
         self._dark_mode: bool = config.DARK_MODE
         self._dim_labels: list = []
         self._tray = None
+        self._suppress_unmap = False
         self._highlight = RegionHighlight(self)
         self._click_count: int = 0
 
@@ -73,6 +74,7 @@ class App(tk.Tk):
         self._setup_hotkeys()
         self._setup_tray()
         self.protocol("WM_DELETE_WINDOW", self._on_close)
+        self.bind("<Unmap>", self._on_minimize)
         # Dark title bar needs the HWND, which only exists after the event loop starts
         self.after(1, lambda: self._darken_titlebar(self))
 
@@ -372,15 +374,23 @@ class App(tk.Tk):
     #  System tray                                                         #
     # ------------------------------------------------------------------ #
 
-    def _make_tray_image(self):
+    def _make_tray_image(self, running: bool = False):
         size = 64
         img = _PILImage.new("RGBA", (size, size), (0, 0, 0, 0))
         draw = _PILDraw.Draw(img)
         cx = size // 2
-        draw.ellipse([4, 4, size - 4, size - 4], fill="#27ae60")
+        fill = "#27ae60" if running else "#888888"
+        draw.ellipse([4, 4, size - 4, size - 4], fill=fill)
         draw.rectangle([cx - 3, 14, cx + 3, size - 14], fill="white")
         draw.rectangle([14, cx - 3, size - 14, cx + 3], fill="white")
         return img
+
+    def _update_tray_state(self, status: str) -> None:
+        if not self._tray:
+            return
+        running = status == "running"
+        self._tray.icon = self._make_tray_image(running=running)
+        self._tray.title = f"Color Clicker — {'Running' if running else 'Idle'}"
 
     def _setup_tray(self) -> None:
         if not _TRAY_OK:
@@ -388,7 +398,7 @@ class App(tk.Tk):
         menu = pystray.Menu(
             pystray.MenuItem("Show", self._tray_show, default=True),
             pystray.MenuItem(
-                "Start / Stop",
+                lambda item: "Stop" if self._controller.running else "Start",
                 lambda icon, item: self.after(0, self._controller.toggle),
             ),
             pystray.Menu.SEPARATOR,
@@ -398,6 +408,10 @@ class App(tk.Tk):
             "color-clicker", self._make_tray_image(), "Color Clicker", menu,
         )
         threading.Thread(target=self._tray.run, daemon=True).start()
+
+    def _on_minimize(self, event) -> None:
+        if event.widget is self and not self._suppress_unmap and _TRAY_OK and self._tray:
+            self.withdraw()
 
     def _tray_show(self, *_) -> None:
         self.after(0, self._show_window)
@@ -523,6 +537,7 @@ class App(tk.Tk):
             self._status_lbl.config(fg=t["dim_fg"], bg=t["bg"])
             self._start_btn.config(state=tk.NORMAL)
             self._stop_btn.config(state=tk.DISABLED)
+        self._update_tray_state(status)
 
     def _append_log(self, msg: str) -> None:
         self._log.config(state=tk.NORMAL)
@@ -705,7 +720,8 @@ class App(tk.Tk):
 
     def _on_close(self) -> None:
         if _TRAY_OK and self._tray is not None:
-            # Minimize to tray instead of quitting
+            self._suppress_unmap = True
             self.withdraw()
+            self._suppress_unmap = False
         else:
             self._do_quit()
