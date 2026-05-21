@@ -70,12 +70,39 @@ Settings are saved to `preferences.json` and applied immediately on Save.
 - **Spam clicking** — if the target color stays on screen after a click, raise Click Cooldown or Consecutive Frames in Preferences
 - **Game anti-cheat** software may detect or block this tool
 
-## Build from source
+## Build from source (compile to .exe)
 
-Requires PyInstaller (`pip install pyinstaller`). The spec file is included in the repo:
+PyInstaller bundles your Python script and all its dependencies into a single `.exe` that runs on any Windows machine without Python installed.
+
+**1. Install PyInstaller**
+
+```bash
+pip install pyinstaller
+```
+
+**2. Build using the included spec file**
 
 ```bash
 python -m PyInstaller color_clicker.spec
 ```
 
-The exe is written to `dist/ColorClicker.exe`. The build requests UAC elevation automatically (needed for global hotkeys via the `keyboard` library).
+The spec file (`color_clicker.spec`) already has the right settings for this project — single-file output, no console window, and UAC elevation on launch (required for global hotkeys). You don't need to pass any extra flags.
+
+The finished exe is written to `dist/ColorClicker.exe`.
+
+**What the spec file does (for reference)**
+
+| Setting | Value | Why |
+|---|---|---|
+| `--onefile` | yes | Packs everything into one `.exe` |
+| `console=False` | no console window | GUI app, no terminal needed |
+| `uac_admin=True` | requests admin on launch | `keyboard` library needs elevation for global hotkeys |
+| hidden imports | `pystray._win32`, `mss.windows`, `PIL._tkinter_finder` | Modules PyInstaller can't auto-detect |
+
+**To build from scratch without the spec file**
+
+```bash
+pyinstaller --onefile --noconsole --uac-admin --name ColorClicker main.py
+```
+
+> Note: the hidden imports above won't be included this way — use the spec file for a reliable build.
