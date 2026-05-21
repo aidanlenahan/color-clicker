@@ -4,6 +4,8 @@ import threading
 import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
 
+import webbrowser
+
 import config
 from core.controller import Controller
 from core.region import RegionSelector
@@ -13,6 +15,7 @@ from core import prefs as core_prefs
 from gui.highlight import RegionHighlight
 from utils.hotkeys import HotkeyManager
 from utils import logger
+from utils.updater import check_for_update
 
 try:
     import pystray
@@ -77,6 +80,7 @@ class App(tk.Tk):
         self.bind("<Unmap>", self._on_minimize)
         # Dark title bar needs the HWND, which only exists after the event loop starts
         self.after(1, lambda: self._darken_titlebar(self))
+        self.after(2000, self._check_for_update)
 
     # ------------------------------------------------------------------ #
     #  Theme                                                               #
@@ -257,6 +261,14 @@ class App(tk.Tk):
             bg=t["btn_bg"], fg=t["btn_fg"], activebackground=t["btn_active_bg"],
         )
         self._theme_btn.pack(side=tk.RIGHT, padx=2, pady=3)
+        self._ver_btn = tk.Button(
+            sf, text=f"v{config.VERSION}", font=("Segoe UI", 7),
+            relief="flat", bd=0, cursor="hand2",
+            command=lambda: webbrowser.open(config.REPO_URL),
+            bg=t["btn_bg"], fg=t["dim_fg"],
+            activebackground=t["btn_active_bg"], activeforeground=t["fg"],
+        )
+        self._ver_btn.pack(side=tk.RIGHT, padx=(0, 2), pady=3)
         tk.Button(sf, text="Preferences", font=("Segoe UI", 8),
                   command=self._open_prefs, bg=t["btn_bg"], fg=t["btn_fg"],
                   activebackground=t["btn_active_bg"]).pack(side=tk.RIGHT, padx=6, pady=4)
@@ -408,6 +420,18 @@ class App(tk.Tk):
             "color-clicker", self._make_tray_image(), "Color Clicker", menu,
         )
         threading.Thread(target=self._tray.run, daemon=True).start()
+
+    def _check_for_update(self) -> None:
+        check_for_update(lambda tag, url: self.after(0, self._on_update_available, tag, url))
+
+    def _on_update_available(self, tag: str, url: str) -> None:
+        self._ver_btn.configure(
+            text=f"{tag} available",
+            fg="#e67e22",
+            activeforeground="#e67e22",
+            command=lambda: webbrowser.open(url),
+        )
+        self._append_log(f"Update available: {tag} — {url}")
 
     def _on_minimize(self, event) -> None:
         if event.widget is self and not self._suppress_unmap and _TRAY_OK and self._tray:

@@ -1,3 +1,6 @@
+VERSION = "1.1"
+REPO_URL = "https://github.com/aidanlenahan/color-clicker"
+
 SCAN_INTERVAL = 0.03        # ~33 FPS scan rate
 CLICK_COOLDOWN = 0.3        # seconds between clicks (anti-spam)
 COLOR_TOLERANCE = 25        # per-channel RGB tolerance (0-255)
