@@ -70,7 +70,7 @@ Settings are saved to `preferences.json` and applied immediately on Save.
 - **Spam clicking** — if the target color stays on screen after a click, raise Click Cooldown or Consecutive Frames in Preferences
 - **Game anti-cheat** software may detect or block this tool
 
-## Build from source (compile to .exe)
+## Build from source
 
 PyInstaller bundles your Python script and all its dependencies into a single `.exe` that runs on any Windows machine without Python installed.
 
@@ -86,7 +86,7 @@ pip install pyinstaller
 python -m PyInstaller color_clicker.spec
 ```
 
-The spec file (`color_clicker.spec`) already has the right settings for this project — single-file output, no console window, and UAC elevation on launch (required for global hotkeys). You don't need to pass any extra flags.
+The spec file (`color_clicker.spec`) already has the right settings for this project, single-file output, no console window, and UAC elevation on launch (required for global hotkeys). You don't need to pass any extra flags.
 
 The finished exe is written to `dist/ColorClicker.exe`.
 
